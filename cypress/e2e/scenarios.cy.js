@@ -10,6 +10,12 @@ beforeEach(() => {
   });
 });
 
+after(() => {
+  cy.clearCookies();
+  cy.clearLocalStorage();
+  cy.getCookies().should("be.empty");
+});
+
 describe("Storyteq Challenge scenario one and two", () => {
   it("should successfully create a template", () => {
     cy.intercept(
@@ -58,6 +64,38 @@ describe("Storyteq Challenge scenario one and two", () => {
     cy.get(templatePage.layer).contains("Ellipse").should("exist");
     cy.get(templatePage.colorFillPick).type("165EDF");
     cy.get(templatePage.shadowCheckbox).click();
+    cy.get(templatePage.publishTemplate).click();
+    cy.get(templatePage.confirmPublish).contains("Publish").click();
+  });
+
+  it("should be able to exit the builder and redirect to templates page", () => {
+    cy.visit("/");
+    cy.visit("https://platform.storyteq.com/builder/#/");
+    cy.get(templatePage.templateBanner).should("be.visible");
+    cy.get(templatePage.templateBannerTab).click();
+    cy.get(templatePage.templateItems).contains("Billboard").click();
+    cy.get(templatePage.templateTitleField).type("New Template");
+    cy.get(templatePage.exitTemplateBtn).contains("Exit Builder").click();
+    cy.url().should("contain", "/#/content/templates");
+  });
+
+  it("should edit the template", () => {
+    cy.intercept(
+      "https://api.storyteq.com/v4/content/folders?filter[parent_id]=null&sort=-created_at"
+    ).as("waitAfetLoad");
+    cy.visit("/");
+    cy.get(templatePage.sidebarItemTemplate).click();
+    cy.get(templatePage.editTemplate).first().invoke("show").click();
+    cy.wait("@waitAfetLoad");
+    cy.get(templatePage.createText).click();
+    cy.get(templatePage.layer).contains("Text").should("exist");
+    cy.get(templatePage.sidebarAnimation).click();
+    cy.get(templatePage.introAnimation).click();
+    cy.get(templatePage.rotateOption).click();
+    cy.get(templatePage.introDuration).type("3");
+    cy.get(templatePage.outroAnimation).click();
+    cy.get(templatePage.scaleOption).click();
+    cy.get(templatePage.outroDuration).type("3");
     cy.get(templatePage.publishTemplate).click();
     cy.get(templatePage.confirmPublish).contains("Publish").click();
   });
