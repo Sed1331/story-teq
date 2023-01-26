@@ -34,4 +34,31 @@ describe("Storyteq Challenge scenario one and two", () => {
     cy.get(templatePage.breadcrumbTemplate).click();
     cy.get(templatePage.templateCard("TestSeda")).should("exist");
   });
+
+  it("should create a new template and add more properties", () => {
+    cy.intercept(
+      "https://api.storyteq.com/v4/content/folders?filter[parent_id]=null&sort=-created_at"
+    ).as("waitAfetLoad");
+    cy.visit("/");
+    cy.visit("https://platform.storyteq.com/builder/#/");
+    cy.get(templatePage.templateBanner).should("be.visible");
+    cy.get(templatePage.templateBannerTab).click();
+    cy.get(templatePage.templateItems).contains("Billboard").click();
+    cy.get(templatePage.templateTitleField).type("Template Seda");
+    cy.get(templatePage.templateWidth).clear().type("40");
+    cy.get(templatePage.templateHeight).clear().type("30");
+    cy.get(templatePage.createTemplateBtn).click();
+    cy.wait("@waitAfetLoad");
+    cy.get(templatePage.dragItem).drag(templatePage.canvas, {
+      source: { position: "center" },
+      target: { position: "center" },
+      force: true,
+    });
+    cy.get(templatePage.createCircle).click();
+    cy.get(templatePage.layer).contains("Ellipse").should("exist");
+    cy.get(templatePage.colorFillPick).type("165EDF");
+    cy.get(templatePage.shadowCheckbox).click();
+    cy.get(templatePage.publishTemplate).click();
+    cy.get(templatePage.confirmPublish).contains("Publish").click();
+  });
 });

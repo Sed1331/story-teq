@@ -1,4 +1,5 @@
 /** @format */
+require("@4tw/cypress-drag-drop");
 
 Cypress.Commands.add("login", (usr, pwd) => {
   cy.visit("/");
